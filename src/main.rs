@@ -53,6 +53,22 @@ fn main() {
                 .value_name("file_destination")
                 .help("sets the file destination"),
         )
+        .arg(
+            Arg::with_name("Post Text")
+                .short("t")
+                .long("text")
+                .takes_value(false)
+                .value_name("text")
+                .help("gets the so called self text"),
+        )
+        .arg(
+            Arg::with_name("img")
+                .short("i")
+                .long("img")
+                .takes_value(false)
+                .value_name("img")
+                .help("gets post images"),
+        )
         .get_matches();
 
     let start_time = std::time::SystemTime::now();
@@ -60,6 +76,9 @@ fn main() {
 
     let mut count = 1;
     let mut destination = String::new();
+
+    let mut img = false;
+    let mut text = false;
 
     if matches.is_present("subreddit") {
         settings.subreddit = String::from(matches.value_of("subreddit").unwrap());
@@ -79,12 +98,24 @@ fn main() {
     if matches.is_present("file destination") {
         destination = String::from(matches.value_of("file destination").unwrap());
     }
+    if matches.is_present("img") {
+        img = true
+    }
 
-    let posts = rddit_framework_2::post_handler::get_all_post_data(settings);
+    if matches.is_present("text") {
+        text = true
+    }
 
-    let imgs = rddit_framework_2::download_handler::get_images(count, posts);
+    let posts = rddit_framework_2::post_handler::get_all_post_data(&settings);
 
-    rddit_framework_2::download_handler::download_imgs(imgs, destination);
+    if img {
+        let imgs = rddit_framework_2::download_handler::get_images(count, &posts);
+        rddit_framework_2::download_handler::download_imgs(&imgs, destination);
+    }
+
+    if text {
+        rddit_framework_2::download_handler::download_text(count, destination, &posts)
+    }
 
     let elapsed_time = std::time::SystemTime::now()
         .duration_since(start_time)
