@@ -54,19 +54,15 @@ fn main() {
                 .help("sets the file destination"),
         )
         .arg(
-            Arg::with_name("Post Text")
-                .short("t")
-                .long("text")
-                .takes_value(false)
-                .value_name("text")
+            Arg::with_name("Text")
+                .short("T")
+                .long("Text")
                 .help("gets the so called self text"),
         )
         .arg(
             Arg::with_name("img")
                 .short("i")
                 .long("img")
-                .takes_value(false)
-                .value_name("img")
                 .help("gets post images"),
         )
         .get_matches();
@@ -102,19 +98,19 @@ fn main() {
         img = true
     }
 
-    if matches.is_present("text") {
+    if matches.is_present("Text") {
         text = true
     }
 
-    let posts = rddit_framework_2::post_handler::get_all_post_data(&settings);
+    let posts = rddit_framework_2::post_handler::get_all_post_data(&mut settings);
 
     if img {
         let imgs = rddit_framework_2::download_handler::get_images(count, &posts);
-        rddit_framework_2::download_handler::download_imgs(&imgs, destination);
+        rddit_framework_2::download_handler::download_imgs(&imgs, &destination);
     }
 
     if text {
-        rddit_framework_2::download_handler::download_text(count, destination, &posts)
+        rddit_framework_2::download_handler::download_text(count, &destination, &posts)
     }
 
     let elapsed_time = std::time::SystemTime::now()
